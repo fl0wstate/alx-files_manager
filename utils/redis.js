@@ -26,7 +26,6 @@ class RedisClient {
 
     this.client.on('connect', () => {
       this.connected = true;
-      console.log('Redis client connected to the server');
     });
 
     this.connected = this.client.on('ready', () => {
@@ -34,7 +33,7 @@ class RedisClient {
     });
 
     this.client.on('end', () => {
-      console.log('Redis client disconnected');
+      this.client.quit();
     });
 
     this.setAsync = promisify(this.client.setex).bind(this.client);
