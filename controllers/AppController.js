@@ -20,7 +20,7 @@ class AppController {
   static async getStats(_, res) {
     const result = {
       users: await dbClient.nbUsers(),
-      files: await dbClient.nbMovies(),
+      files: await dbClient.nbFiles(),
     };
     return res.status(200).send(result);
   }
