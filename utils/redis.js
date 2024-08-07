@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Making a simple RedisClient class
  * Creates a blue print that will allow me to work
@@ -13,49 +12,76 @@
  */
 
 import { createClient } from 'redis';
-import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
     this.client = createClient();
-    this.connected = false;
-
-    this.client.on('error', (err) => {
-      console.error('Redis client not connected to the server:', err);
-    });
+    this.isConnected = false;
 
     this.client.on('connect', () => {
-      this.connected = true;
+      this.isConnected = true;
+      console.log('Connected to Redis server');
     });
 
-    this.connected = this.client.on('ready', () => {
+    this.client.on('ready', () => {
       console.log('Redis client ready');
     });
 
     this.client.on('end', () => {
-      this.client.quit();
+      console.log('Connection to Redis server ended');
+      this.isConnected = false;
     });
 
-    this.setAsync = promisify(this.client.setex).bind(this.client);
-    this.getAsync = promisify(this.client.get).bind(this.client);
-    this.delAsync = promisify(this.client.del).bind(this.client);
+    this.client.on('error', (err) => {
+      console.error('Redis client error:', err);
+      this.isConnected = false;
+    });
   }
 
-  async set(key, value, duration) {
-    await this.setAsync(key, value, duration);
+  set(key, value, duration) {
+    if (!this.isConnected) {
+      return Promise.reject(new Error('Could not connect to the Redis server'));
+    }
+    return new Promise((resolve, reject) => {
+      this.client.setex(key, duration, value, (err, result) => {
+        if (err) {
+          console.error('Error setting key:', err);
+          return reject(new Error('Error setting key'));
+        }
+        return resolve(result);
+      });
+    });
   }
 
-  async get(key) {
-    this.result = await this.getAsync(key);
-    return this.result;
+  get(key) {
+    return new Promise((resolve, reject) => {
+      this.client.get(key, (err, result) => {
+        if (err) {
+          console.error('Error retrieving value:', err);
+          return reject(new Error('Error retrieving value'));
+        }
+        return resolve(result);
+      });
+    });
   }
 
-  async del(key) {
-    await this.delAsync(key);
+  del(key) {
+    if (!this.isConnected) {
+      return Promise.reject(new Error('Could not connect to the Redis server'));
+    }
+    return new Promise((resolve, reject) => {
+      this.client.del(key, (err, result) => {
+        if (err) {
+          console.error('Error deleting key:', err);
+          return reject(new Error('Error deleting key'));
+        }
+        return resolve(result);
+      });
+    });
   }
 
   isAlive() {
-    return this.connected;
+    return this.isConnected;
   }
 }
 
