@@ -14,7 +14,7 @@ import { createHash } from 'crypto';
 import dbClient from '../utils/db';
 // import dbClient from '../test';
 
-class UserController {
+class UsersController {
   static async postNew(req, res) {
     if (!req.body.email) {
       return res.status(400).send({ error: 'Missing email' });
@@ -38,4 +38,4 @@ class UserController {
   }
 }
 
-module.exports = UserController;
+module.exports = UsersController;
