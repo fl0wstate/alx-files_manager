@@ -25,12 +25,17 @@ class UsersController {
     }
 
     try {
+      const resultTest = await dbClient.nbFindUsers({ email: req.body.email });
+      if (resultTest) {
+        res.status(400).send({ error: 'Already exist' });
+      }
       const hashpass = createHash('sha1');
       req.body.password = hashpass.update(req.body.password).digest('hex');
       const result = await dbClient.pnUser(req.body);
       res.status(201).send({ id: result, email: req.body.email });
     } catch (err) {
-      res.status(400).send({ error: 'Already exist' });
+      console.error(err);
+      res.status(500).send({ Error: 'Internal Server Error' });
     }
     return res;
   }
