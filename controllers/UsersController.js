@@ -24,15 +24,13 @@ class UsersController {
       return res.status(400).send({ error: 'Missing password' });
     }
 
-    if (dbClient.isAlive()) {
-      try {
-        const hashpass = createHash('sha1');
-        req.body.password = hashpass.update(req.body.password).digest('hex');
-        const result = await dbClient.pnUser(req.body);
-        res.status(201).send({ id: result, email: req.body.email });
-      } catch (err) {
-        res.status(400).send({ error: 'Already exist' });
-      }
+    try {
+      const hashpass = createHash('sha1');
+      req.body.password = hashpass.update(req.body.password).digest('hex');
+      const result = await dbClient.pnUser(req.body);
+      res.status(201).send({ id: result, email: req.body.email });
+    } catch (err) {
+      res.status(400).send({ error: 'Already exist' });
     }
     return res;
   }
