@@ -11,8 +11,8 @@
  *  users -> all users should be storeed in the users collection
  */
 import { createHash } from 'crypto';
-// import dbClient from '../utils/db';
-import dbClient from '../test';
+import dbClient from '../utils/db';
+// import dbClient from '../test';
 
 class UsersController {
   static async postNew(req, res) {
