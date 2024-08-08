@@ -11,8 +11,8 @@
  *  users -> all users should be storeed in the users collection
  */
 import { createHash } from 'crypto';
-import dbClient from '../utils/db';
-// import dbClient from '../test';
+// import dbClient from '../utils/db';
+import dbClient from '../test';
 
 class UsersController {
   static async postNew(req, res) {
@@ -29,7 +29,7 @@ class UsersController {
         const hashpass = createHash('sha1');
         req.body.password = hashpass.update(req.body.password).digest('hex');
         const result = await dbClient.pnUser(req.body);
-        res.status(201).send({ id: result._id, email: result.email });
+        res.status(201).send({ id: result, email: req.body.email });
       } catch (err) {
         res.status(400).send({ error: 'Already exist' });
       }
