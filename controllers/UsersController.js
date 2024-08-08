@@ -29,10 +29,9 @@ class UserController {
         const hashpass = createHash('sha1');
         req.body.password = hashpass.update(req.body.password).digest('hex');
         const result = await dbClient.pnUser(req.body);
-        delete result.password;
-        res.status(201).send(result);
+        res.status(201).send({ id: result._id, email: result.email });
       } catch (err) {
-        res.status(400).send({ error: 'Already exists' });
+        res.status(400).send({ error: 'Already exist' });
       }
     }
     return res;

@@ -4,7 +4,7 @@
  */
 
 import AppController from '../controllers/AppController';
-import UserController from '../controllers/UsersController';
+import UsersController from '../controllers/UsersController';
 
 const express = require('express');
 
@@ -13,6 +13,6 @@ router.use(express.json());
 
 router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
-router.post('/users', UserController.postNew);
+router.post('/users', UsersController.postNew);
 
 module.exports = router;
