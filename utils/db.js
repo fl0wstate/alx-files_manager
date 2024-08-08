@@ -61,6 +61,23 @@ class DBClient {
         return Promise.reject(new Error('Error counting files'));
       });
   }
+
+  pnUser(userDetails) {
+    if (!this.isConnected) {
+      return Promise.reject(new Error('Not connected to the database'));
+    }
+    this.client.db(this.database).collection('users').insertOne(userDetails)
+      .catch((err) => {
+        console.error('Error counting files:', err);
+        return Promise.reject(new Error('Error adding new user'));
+      });
+    return this.client.db(this.database).collection('users').findOne(userDetails)
+      .then((res) => res)
+      .catch((err) => {
+        console.log(err);
+        return Promise.reject(new Error('No user found', err));
+      });
+  }
 }
 
 const dbClient = new DBClient();
