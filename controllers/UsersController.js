@@ -50,22 +50,17 @@ class UsersController {
 
   static async getMe(req, res) {
     const token = req.headers['x-token'];
-    let userId;
-    let key;
 
-    try {
-      if (token) key = `auth_${token}`;
-      userId = await redisClient.get(key);
-    } catch (err) {
-      console.log('Caught error: ', err);
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
+    if (!token) return res.status(404).send({ error: 'Unauthorized' });
+
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
     const result = await dbClient.nbFindUsers({ _id: new ObjectId(userId) });
 
-    if (!result) {
-      return res.status(404).send({ error: 'No user found' });
-    }
+    if (!result) return res.status(404).send({ error: 'No user found' });
 
     const { email } = result;
 
