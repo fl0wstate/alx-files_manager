@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import redisClient from '../utils/redis';
-// import dbClient from '../utils/db';
-import dbClient from '../test';
+import dbClient from '../utils/db';
+// import dbClient from '../test';
 
 class AuthController {
   static async getConnect(req, res) {
@@ -14,9 +14,9 @@ class AuthController {
 
     const base64Credentials = authHeader.split(' ')[1];
     const decodedCredentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
-    // const [email, password] = decodedCredentials.split(':');
+    const [email, password] = decodedCredentials.split(':');
     // for testing use this method
-    const { email, password } = JSON.parse(decodedCredentials);
+    // const { email, password } = JSON.parse(decodedCredentials);
     // Allows me to use JSON to extract the string object into a javascript object
 
     if (!email || !password) {
