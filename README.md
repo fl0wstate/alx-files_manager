@@ -6,8 +6,8 @@
 
 ---
 ## Synchronous Limits
-- All events emitted are usually Asynchronous function, meaning you can either handle them, legacy code callback orasync await.
-- Had a bit of a challenge while checking for the node-redis client connection status.
+- All events emitted are usually Asynchronous function, meaning you can either handle them with legacy code callback methods or async await.
+- Had a bit of a challenge while checking for the node-redis client connection status, ending up with a simple implementation like this one.
     ```javascript
     ...
 
