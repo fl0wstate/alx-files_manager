@@ -1,11 +1,11 @@
+import { MongoClient } from 'mongodb';
+
 /*
  * Making a connection to the mongodb database
  * How to make a simple mongodb client
  * How to connect to the mongodb database
  * How to count documents in a given collections
  */
-
-import { MongoClient } from 'mongodb';
 
 class DBClient {
   constructor() {
@@ -37,7 +37,7 @@ class DBClient {
     return this.isConnected;
   }
 
-  numberOfUsers() {
+  nbUsers() {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -61,7 +61,7 @@ class DBClient {
       });
   }
 
-  numberOfFiles() {
+  nbFiles() {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -163,12 +163,10 @@ class DBClient {
 
       const result = await this.client.db(this.database).collection('files').aggregate(pipeline).toArray();
       return result;
-
     } catch (err) {
       return new Error('Not connected to the database', err);
     }
   }
-
 }
 
 const dbClient = new DBClient();
