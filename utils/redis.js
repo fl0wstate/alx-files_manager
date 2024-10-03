@@ -1,4 +1,4 @@
-/**
+/*
  * Making a simple RedisClient class
  * Creates a blue print that will allow me to work
  * with different Redis-server commands
