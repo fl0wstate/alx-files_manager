@@ -48,9 +48,9 @@ class AuthController {
 
     if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
-    await redisClient.del(key);
+    await redisClient.del(`auth_${token}`);
     return res.status(204).send();
   }
 }
 
-module.exports = AuthController;
+export default AuthController;
