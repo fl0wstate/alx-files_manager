@@ -26,9 +26,6 @@ class AuthController {
     if (!email || !password) return res.status(401).send({ error: 'Unauthorized' });
 
     // Logging the results
-
-    if (!dbClient.isAlive()) return res.status(500).send({ error: 'No Database Found' });
-
     const hashpass = createHash('sha1').update(password).digest('hex');
     const user = await dbClient.findUser({ email, password: hashpass });
 
