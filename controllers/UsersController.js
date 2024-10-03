@@ -15,9 +15,9 @@
 
 import { createHash } from 'crypto';
 import { ObjectId } from 'mongodb';
-// import dbClient from '../utils/db';
+import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-import dbClient from '../test';
+// import dbClient from '../test';
 
 class UsersController {
   static async postNew(req, res) {
