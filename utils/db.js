@@ -129,21 +129,7 @@ class DBClient {
       const totalDocuments = await this.countMatchingFiles(parentId);
       const totalPages = Math.ceil(totalDocuments / limit);
 
-      if (totalDocuments === 0) {
-        return {
-          error: 'No documents found in the collection',
-          totalPages: 0,
-          currentPage: 0,
-        };
-      }
-
-      if (page < 0 || page >= totalPages) {
-        return {
-          error: 'Page out of bounds',
-          totalPages,
-          currentPage: page,
-        };
-      }
+      if (page < 0 || page >= totalPages) return [];
 
       const skip = page * limit;
 
@@ -154,23 +140,8 @@ class DBClient {
       ];
 
       const result = await this.client.db(this.database).collection('files').aggregate(pipeline).toArray();
-
-      if (result.length === 0) {
-        return {
-          error: 'No results found',
-          totalPages,
-          currentPage: page,
-        };
-      }
       return result;
-      /*
-        totalDocuments,
-        totalPages,
-        currentPage: page,
-        limit,
-        hasNextPage: page < totalPages - 1,
-        hasPreviousPage: page > 0,
-        */
+
     } catch (err) {
       return new Error('Not connected to the database', err);
     }
