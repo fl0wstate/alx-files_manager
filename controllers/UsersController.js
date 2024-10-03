@@ -15,9 +15,9 @@
 
 import { createHash } from 'crypto';
 import { ObjectId } from 'mongodb';
-import dbClient from '../utils/db';
+// import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-// import dbClient from '../test';
+import dbClient from '../test';
 
 class UsersController {
   static async postNew(req, res) {
@@ -34,9 +34,7 @@ class UsersController {
 
       const hashpass = createHash('sha1').update(password).digest('hex');
 
-      const result = await dbClient.pnUser({ email, password: hashpass });
-
-      if (!result) return res.status(500).send({ Error: 'Internal Server Error' });
+      const result = await dbClient.postNewUser({ email, password: hashpass });
 
       return res.status(201).send({ id: result, email });
 
