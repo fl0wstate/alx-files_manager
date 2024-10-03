@@ -94,11 +94,7 @@ class FileController {
 
       if (!userId) return res.status(404).send({ error: 'Unauthorized' });
 
-      if (!parentId || !page) return res.status(404).send({ error: 'ParentId and pages can\'t be null' });
-
       const folderFiles = await dbClient.findFolders({ parentId, page });
-
-      if (folderFiles.err) return res.status(404).send({ error: folderFiles.error });
 
       return res.status(200).send(folderFiles || []);
     } catch (err) {
