@@ -37,12 +37,10 @@ class UsersController {
       const result = await dbClient.postNewUser({ email, password: hashpass });
 
       return res.status(201).send({ id: result, email });
-
-    } catch(err) {
+    } catch (err) {
       // console.log(err);
       return res.status(500).send('Internal server error while posting new user to the database: ', err);
     }
-
   }
 
   static async getMe(req, res) {
@@ -62,7 +60,6 @@ class UsersController {
       const { email } = result;
 
       return res.status(200).send({ id: userId, email });
-
     } catch (err) {
       // console.log(err);
       return res.status(500).send('Internal server error while retriving user from the database: ', err);
@@ -70,4 +67,4 @@ class UsersController {
   }
 }
 
-module.exports = UsersController;
+export defualt UsersController;
