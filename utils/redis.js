@@ -46,37 +46,42 @@ class RedisClient {
   }
 
   async get(key) {
+    let result;
     if (key && typeof key === 'string') {
       try {
-        return this.getAsync(key);
+        result = await this.getAsync(key);
       } catch (err) {
         return err;
       }
     }
+    return result;
   }
 
   async set(key, value, expirationInSeconds) {
+    let result;
     if (key && value && typeof key === 'string') {
       try {
         if (expirationInSeconds) {
-          return this.setAsync(key, value, 'EX', expirationInSeconds);
+          result = await this.setAsync(key, value, 'EX', expirationInSeconds);
         }
-        console.log('you are now using SET redis function');
-        return this.setAsync(key, value);
+        result = await this.setAsync(key, value);
       } catch (err) {
         console.log(err);
       }
     }
+    return result;
   }
 
   async del(key) {
+    let result;
     if (key && typeof key === 'string') {
       try {
-        return this.delAsync(key);
+        result = await this.delAsync(key);
       } catch (err) {
         console.log(err);
       }
     }
+    return result;
   }
 }
 
