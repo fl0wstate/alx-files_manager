@@ -1,3 +1,7 @@
+/*
+ * Simple Authentication system
+ */
+
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import redisClient from '../utils/redis';
@@ -19,22 +23,16 @@ class AuthController {
     // const { email, password } = JSON.parse(decodedCredentials);
     // Allows me to use JSON to extract the string object into a javascript object
 
-    if (!email || !password) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
+    if (!email || !password) return res.status(401).send({ error: 'Unauthorized' });
 
     // Logging the results
 
-    if (!dbClient.isAlive()) {
-      return res.status(500).send({ error: 'No Database Found' });
-    }
+    if (!dbClient.isAlive()) return res.status(500).send({ error: 'No Database Found' });
 
     const hashpass = createHash('sha1').update(password).digest('hex');
-    const user = await dbClient.nbFindUsers({ email, password: hashpass });
+    const user = await dbClient.findUser({ email, password: hashpass });
 
-    if (!user) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     const token = uuidv4();
 
@@ -47,16 +45,11 @@ class AuthController {
   static async getDisconnect(req, res) {
     const token = req.headers['x-token'];
 
-    if (!token) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
-    const key = `auth_${token}`;
-    const userId = await redisClient.get(key);
+    const userId = await redisClient.get(`auth_${token}`);
 
-    if (!userId) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
     await redisClient.del(key);
     return res.status(204).send();
