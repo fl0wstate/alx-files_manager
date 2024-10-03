@@ -118,6 +118,28 @@ class DBClient {
       .catch((err) => Promise.reject(new Error('No document found matching parentId: ', err)));
   }
 
+  publishFile(doc) {
+    if (!this.isConnected) {
+      return Promise.reject(new Error('Not connected to the database'));
+    }
+
+    return this.client.db(this.database).collection('files')
+      .updateOne({ _id: doc._id }, { $set: { isPublic: true } })
+      .then((res) => res)
+      .catch((err) => Promise.reject(new Error(`Error updating the document. Error: ${err.message}`)));
+  }
+
+  unPublishFile(doc) {
+    if (!this.isConnected) {
+      return Promise.reject(new Error('Not connected to the database'));
+    }
+
+    return this.client.db(this.database).collection('files')
+      .updateOne({ _id: doc._id }, { $set: { isPublic: false } })
+      .then((res) => res)
+      .catch((err) => Promise.reject(new Error(`Error updating the document. Error: ${err.message}`)));
+  }
+
   async findFolders(folderDetails) {
     if (!this.isConnected) {
       return new Error('Not connected to the database');
@@ -146,6 +168,7 @@ class DBClient {
       return new Error('Not connected to the database', err);
     }
   }
+
 }
 
 const dbClient = new DBClient();
