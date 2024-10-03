@@ -120,8 +120,71 @@ class FileController {
 
       return res.status(200).send(result);
     } catch (err) {
-      // console.log('error: ', err);
+      console.log('error: ', err);
       return res.status(500).send({ error: 'Internal Server Error: Failed to fetch file' });
+    }
+  }
+
+  static async putUnpublish(req, res) {
+    try {
+      const token = req.headers['x-token'];
+      const { id } = req.params;
+
+      if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+      const userId = await redisClient.get(`auth_${token}`);
+
+      if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
+      const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
+
+      if (!result) return res.status(404).send({ error: 'Not found' });
+
+      const published = await dbClient.unPublishFile(result);
+
+      const newResult = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const newObject = {
+        id,
+        userId,
+        ...newResult,
+      }
+      
+      return res.status(200).send(newObject);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send({ error: 'Internal server Error' });
+    }
+  }
+
+  static async putPublish(req, res) {
+    try {
+      const token = req.headers['x-token'];
+      const { id } = req.params;
+
+      if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+      const userId = await redisClient.get(`auth_${token}`);
+
+      if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
+      const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
+
+      if (!result) return res.status(404).send({ error: 'Not found' });
+
+      const published = await dbClient.publishFile(result);
+
+      const newResult = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const newObject = {
+        id,
+        userId,
+        ...newResult,
+      }
+
+      return res.status(200).send(newObject);
+      
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send({ error: 'Internal server Error' });
     }
   }
 }
