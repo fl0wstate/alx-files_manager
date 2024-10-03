@@ -1,11 +1,10 @@
-/**
+/*
  * Making a connection to the mongodb database
  * How to make a simple mongodb client
  * How to connect to the mongodb database
  * How to count documents in a given collections
  */
 
-// dbConnection.js
 import { MongoClient } from 'mongodb';
 
 class DBClient {
@@ -38,7 +37,7 @@ class DBClient {
     return this.isConnected;
   }
 
-  nbUsers() {
+  numberOfUsers() {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -50,7 +49,19 @@ class DBClient {
       });
   }
 
-  nbFiles() {
+  numberOfMovies() {
+    if (!this.isConnected) {
+      return Promise.reject(new Error('Not connected to the database'));
+    }
+    return this.client.db(this.database).collection('movies').countDocuments({}, { hint: '_id_' })
+      .then((fileCount) => fileCount)
+      .catch((err) => {
+        console.error('Error counting files:', err);
+        return Promise.reject(new Error('Error counting files'));
+      });
+  }
+
+  numberOfFiles() {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -62,7 +73,7 @@ class DBClient {
       });
   }
 
-  pnUser(userDetails) {
+  postNewUser(userDetails) {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -71,7 +82,7 @@ class DBClient {
       .catch((err) => Promise.reject(new Error('Error adding new user:', err)));
   }
 
-  nbFindUsers(userDetails) {
+  findUser(userDetails) {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -80,7 +91,7 @@ class DBClient {
       .catch((err) => Promise.reject(new Error('No user found:', err)));
   }
 
-  nbFindFiles(fileDetails) {
+  findFile(fileDetails) {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
@@ -89,40 +100,80 @@ class DBClient {
       .catch((err) => Promise.reject(new Error('No user found:', err)));
   }
 
-  nbCreateFiles(fileDetails) {
+  createNewFile(fileDetails) {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
     return this.client.db(this.database).collection('files').insertOne(fileDetails)
-      .then((res) => res)
+      .then((res) => res.insertedId)
       .catch((err) => Promise.reject(new Error('Creating new file failed: ', err)));
   }
 
-  nbFindManyFiles() {
+  countMatchingFiles(doc) {
     if (!this.isConnected) {
       return Promise.reject(new Error('Not connected to the database'));
     }
-
-    // const page = fileDetails.pages;
-    // // const limit = fileDetails.limit;
-
-    // const startindex = (page - 1) * limit;
-    // const endindex = page * limit;
-
-    return this.client.db(this.database).collection('files').find()
+    return this.client.db(this.database).collection('files').countDocuments({ parentId: doc })
       .then((res) => res)
-      .catch((err) => Promise.reject(new Error('No user found:', err)));
+      .catch((err) => Promise.reject(new Error('No document found matching parentId: ', err)));
   }
 
-  nbFindFolderFiles(folderDetails) {
+  async findFolders(folderDetails) {
     if (!this.isConnected) {
-      return Promise.reject(new Error('Not connected to the database'));
+      return new Error('Not connected to the database');
     }
 
-    return this.client.db(this.database).collection('files').insertOne(fileDetails)
-      .then((res) => res)
-      .catch((err) => Promise.reject(new Error('Creating new file failed: ', err)));
+    try {
+      const limit = 20;
+      const { parentId, page } = folderDetails;
+      const totalDocuments = await this.countMatchingFiles(parentId);
+      const totalPages = Math.ceil(totalDocuments / limit);
 
+      if (totalDocuments === 0) {
+        return {
+          error: 'No documents found in the collection',
+          totalPages: 0,
+          currentPage: 0,
+        };
+      }
+
+      if (page < 0 || page >= totalPages) {
+        return {
+          error: 'Page out of bounds',
+          totalPages,
+          currentPage: page,
+        };
+      }
+
+      const skip = page * limit;
+
+      const pipeline = [
+        { $match: { parentId: `${parentId}` } },
+        { $skip: skip },
+        { $limit: limit },
+      ];
+
+      const result = await this.client.db(this.database).collection('files').aggregate(pipeline).toArray();
+
+      if (result.length === 0) {
+        return {
+          error: 'No results found',
+          totalPages,
+          currentPage: page,
+        };
+      }
+      return result;
+      /*
+        totalDocuments,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage: page < totalPages - 1,
+        hasPreviousPage: page > 0,
+        */
+    } catch (err) {
+      return new Error('Not connected to the database', err);
+    }
   }
 }
 
