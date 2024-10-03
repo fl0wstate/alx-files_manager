@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
-// import dbClient from '../test';
+import dbClient from '../test';
 
 class AuthController {
   static async getConnect(req, res) {
@@ -41,7 +41,13 @@ class AuthController {
 
   static async getDisconnect(req, res) {
     const token = req.headers['x-token'];
+
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+    const userId = await redisClient.get(`auth_${token}`);
+
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
     await redisClient.del(`auth_${token}`);
     return res.status(204).send();
   }
