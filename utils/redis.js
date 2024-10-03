@@ -64,7 +64,6 @@ class RedisClient {
         if (expirationInSeconds) {
           result = await this.setAsync(key, value, 'EX', expirationInSeconds);
         }
-        result = await this.setAsync(key, value);
       } catch (err) {
         console.log(err);
       }
