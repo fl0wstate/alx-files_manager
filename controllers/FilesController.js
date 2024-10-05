@@ -114,7 +114,9 @@ class FileController {
 
       if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
-      const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const result = await dbClient.findFile(
+        { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      );
 
       if (!result) return res.status(404).send({ error: 'Not found' });
 
