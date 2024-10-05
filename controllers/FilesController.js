@@ -49,10 +49,10 @@ class FileController {
 
       // eslint-disable-next-line prefer-const
       let fileData = {
-        userId,
+        userId: ObjectId(userId),
         name,
         type,
-        parentId,
+        parentId: parentId === 0 ? 0 : ObjectId(parentId),
         isPublic,
       };
 
@@ -86,17 +86,25 @@ class FileController {
   static async getIndex(req, res) {
     try {
       const token = req.headers['x-token'];
-      const { parentId = 0, page = 0 } = req.query;
+      let { parentId = '0', page = '0' } = req.query;
 
       if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
       const userId = await redisClient.get(`auth_${token}`);
 
-      if (!userId) return res.status(404).send({ error: 'Unauthorized' });
+      if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
-      const folderFiles = await dbClient.findFolders({ parentId, page });
-
-      return res.status(200).send(folderFiles || []);
+      page = Number(page);
+      if (parentId) {
+        if (parentId === '0') {
+          parentId = Number(parentId);
+        } else {
+          parentId = ObjectId(parentId);
+        }
+        const folderFiles = await dbClient.findFolders({ parentId, page });
+        return res.status(200).send(folderFiles);
+      }
+      return res.status(200).send([]);
     } catch (err) {
       // console.log(err);
       return res.status(500).send({ error: 'Internal Server Error: Failed to fetch folder files' });
@@ -140,13 +148,17 @@ class FileController {
 
       if (!dbClient.isValidId) return res.status(404).send({ error: 'Not found' });
 
-      const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const result = await dbClient.findFile(
+        { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      );
 
       if (!result) return res.status(404).send({ error: 'Not found' });
 
       await dbClient.unPublishFile(result);
 
-      const newResult = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const newResult = await dbClient.findFile(
+        { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      );
       const newObject = {
         id,
         userId,
@@ -172,13 +184,18 @@ class FileController {
 
       if (!dbClient.isValidId) return res.status(404).send({ error: 'Not found' });
 
-      const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const result = await dbClient.findFile(
+        { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      );
 
       if (!result) return res.status(404).send({ error: 'Not found' });
 
       await dbClient.publishFile(result);
 
-      const newResult = await dbClient.findFile({ _id: new ObjectId(id), userId });
+      const newResult = await dbClient.findFile(
+        { _id: new ObjectId(id), userId: new ObjectId(userId) },
+      );
+
       const newObject = {
         id,
         userId,
