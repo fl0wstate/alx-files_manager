@@ -156,7 +156,7 @@ class DBClient {
       const skip = page * limit;
 
       const pipeline = [
-        { $match: { parentId: `${parentId}` } },
+        { $match: { parentId } },
         { $skip: skip },
         { $limit: limit },
       ];
