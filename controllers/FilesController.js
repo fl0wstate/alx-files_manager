@@ -136,7 +136,7 @@ class FileController {
 
       if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
-      if (!dbClient.isValidId) return res.status(404).send({ error: 'Not found' }); 
+      if (!dbClient.isValidId) return res.status(404).send({ error: 'Not found' });
 
       const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
 
@@ -149,8 +149,7 @@ class FileController {
         id,
         userId,
         ...newResult,
-      }
-      
+      };
       return res.status(200).send(newObject);
     } catch (err) {
       // console.log(err);
@@ -169,7 +168,7 @@ class FileController {
 
       if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
-      if (!dbClient.isValidId) return res.status(404).send({ error: 'Not found' }); 
+      if (!dbClient.isValidId) return res.status(404).send({ error: 'Not found' });
 
       const result = await dbClient.findFile({ _id: new ObjectId(id), userId });
 
@@ -182,10 +181,9 @@ class FileController {
         id,
         userId,
         ...newResult,
-      }
+      };
 
       return res.status(200).send(newObject);
-      
     } catch (err) {
       // console.log(err);
       return res.status(500).send({ error: 'Internal server Error' });
